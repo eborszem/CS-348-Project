@@ -86,6 +86,7 @@ def airline_operations(airline_code):
                          airports=[a for a in airports if not a['operated']])
 
 
+# ORM
 @app.route('/delete_operation/<airline_code>/<airport_code>', methods=['POST'])
 def delete_operation(airline_code, airport_code):
     try:

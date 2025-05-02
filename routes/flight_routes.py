@@ -2,10 +2,8 @@ from app import app, mysql, db
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from models import *
 
-@app.route('/') 
-def index():
-    return render_template('index.html')
-# CREATE FLIGHT
+
+# CREATE FLIGHT (ORM)
 @app.route('/create_flight', methods=['GET', 'POST'])
 def create_flight():
     if request.method == 'POST':

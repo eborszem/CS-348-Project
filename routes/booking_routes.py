@@ -2,7 +2,7 @@ from app import app, mysql, db
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from models import *
 
-# BOOK FLIGHT
+# BOOK FLIGHT (ORM)
 @app.route('/book_flight', methods=['GET', 'POST'])
 def book_flight():
     if request.method == 'POST':
@@ -124,6 +124,7 @@ def update_booking(flight_number, first, last):
                          first=first,
                          last=last)
 
+# ORM
 @app.route('/delete_booking/<flight_number>/<first>/<last>', methods=['POST'])
 def delete_booking(flight_number, first, last):
     try:

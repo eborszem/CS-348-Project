@@ -3,5 +3,4 @@ myenv
 venv
 .DS_Store
 __pycache__
-routes
 .vscode

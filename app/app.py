@@ -9,10 +9,6 @@ db = SQLAlchemy(app)
 mysql = MySQL(app)
 
 from index import *
-from routes.airline_routes import *
-from routes.airport_routes import *
-from routes.flight_routes import *
-from routes.booking_routes import *
 
 if __name__ == '__main__':
     app.run(debug=True)

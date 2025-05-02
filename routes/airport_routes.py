@@ -32,6 +32,7 @@ def airports():
     cur.close()
     return render_template('airports.html', airports=airports)
 
+# ORM
 @app.route('/edit_airport/<code>', methods=['GET', 'POST'])
 def edit_airport(code):
     if request.method == 'POST':
@@ -53,6 +54,7 @@ def edit_airport(code):
     airport = Airport.query.get_or_404(code)
     return render_template('edit_airport.html', airport=airport)
 
+# ORM
 @app.route('/delete_airport/<code>', methods=['POST'])
 def delete_airport(code):
     try:
