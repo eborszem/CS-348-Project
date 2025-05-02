@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Airports</h1>
+
+<h2>Add New Airport</h2>
+<form method="POST">
+    <input type="text" name="code" placeholder="Code (3 letters)" required maxlength="3">
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="text" name="city" placeholder="City" required>
+    <input type="text" name="country" placeholder="Country" required>
+    <button type="submit">Add Airport</button>
+</form>
+
+<h2>Airport List</h2>
+<table>
+    <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>City</th>
+        <th>Country</th>
+        <th>Actions</th>
+    </tr>
+    {% for airport in airports %}
+    <tr>
+        <td>{{ airport.code }}</td>
+        <td>{{ airport.name }}</td>
+        <td>{{ airport.city }}</td>
+        <td>{{ airport.country }}</td>
+        <td class="action-buttons">
+            <a href="{{ url_for('edit_airport', code=airport.code) }}" class="btn-update">Edit</a>
+            <form method="POST" action="{{ url_for('delete_airport', code=airport.code) }}" style="display:inline;">
+                <button type="submit" class="btn-delete" onclick="return confirm('Delete {{ airport.code }}?')">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<style>
+    .action-buttons {
+        white-space: nowrap;
+    }
+    .btn-update {
+        color: #0066cc;
+        text-decoration: none;
+        margin-right: 8px;
+    }
+    .btn-delete {
+        color: #cc0000;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+</style>
+{% endblock %}

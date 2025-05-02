@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Airline Management System</h1>
+<ul>
+    <li><a href="{{ url_for('airports') }}">Manage Airports</a></li>
+    <li><a href="{{ url_for('airlines') }}">Manage Airlines</a></li>
+    <li><a href="{{ url_for('create_flight') }}" class="btn-primary">Create Flight</a></li>
+    <li><a href="{{ url_for('book_flight') }}" class="btn-primary">Book a Flight</a></li>
+    <li><a href="{{ url_for('view_all_flights') }}">View All Flights</a></li>
+    <li><a href="{{ url_for('view_flights') }}">View All Bookings</a></li>
+</ul>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Create New Flight</h1>
+
+<form method="POST" id="flightForm">
+    <div>
+        <label for="airline_code">Airline:</label>
+        <select name="airline_code" id="airlineSelect" required>
+            <option value="">Select Airline</option>
+            {% for airline in airlines %}
+            <option value="{{ airline.code }}">{{ airline.name }} ({{ airline.code }})</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="flight_number">Flight Number:</label>
+        <input type="text" name="flight_number" required>
+    </div>
+
+    <div>
+        <label for="origin">Origin:</label>
+        <select name="origin" id="originSelect" required disabled>
+            <option value="">Select Airline First</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="destination">Destination:</label>
+        <select name="destination" id="destinationSelect" required disabled>
+            <option value="">Select Airline First</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="departure_date">Departure Date:</label>
+        <input type="date" name="departure_date" required>
+    </div>
+
+    <button type="submit">Create Flight</button>
+</form>
+
+<script>
+document.getElementById('airlineSelect').addEventListener('change', function() {
+    const airlineCode = this.value;
+    const originSelect = document.getElementById('originSelect');
+    const destSelect = document.getElementById('destinationSelect');
+    
+    if (!airlineCode) {
+        originSelect.innerHTML = '<option value="">Select Airline First</option>';
+        destSelect.innerHTML = '<option value="">Select Airline First</option>';
+        originSelect.disabled = true;
+        destSelect.disabled = true;
+        return;
+    }
+    
+    fetch(`/get_airline_airports/${airlineCode}`)
+        .then(response => response.json())
+        .then(airports => {
+            const options = airports.map(airport => 
+                `<option value="${airport.code}">
+                    ${airport.code} - ${airport.name}
+                </option>`
+            ).join('');
+            
+            originSelect.innerHTML = '<option value="">Select Origin</option>' + options;
+            destSelect.innerHTML = '<option value="">Select Destination</option>' + options;
+            originSelect.disabled = false;
+            destSelect.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            originSelect.innerHTML = '<option value="">Error loading airports</option>';
+            destSelect.innerHTML = '<option value="">Error loading airports</option>';
+        });
+});
+
+// cant go where we already are
+document.getElementById('flightForm').addEventListener('submit', function(e) {
+    const origin = document.getElementById('originSelect').value;
+    const destination = document.getElementById('destinationSelect').value;
+    
+    if (origin === destination) {
+        e.preventDefault();
+        alert('Origin and destination must be different!');
+    }
+});
+</script>
+
+<style>
+    form div {
+        margin-bottom: 15px;
+    }
+    label {
+        display: inline-block;
+        width: 150px;
+    }
+    select, input[type="text"], input[type="date"] {
+        padding: 8px;
+        width: 300px;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}

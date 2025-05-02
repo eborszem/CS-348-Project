@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>All Passenger Bookings</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Passenger</th>
+            <th>Airline</th>
+            <th>Flight Number</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>Departure Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.first }} {{ booking.last }}</td>
+            <td>{{ booking.airline_name }} ({{ booking.airline_code }})</td>
+            <td>{{ booking.flight_number }}</td>
+            <td>{{ booking.origin_code }} ({{ booking.origin_name }})</td>
+            <td>{{ booking.dest_code }} ({{ booking.dest_name }})</td>
+            <td>{{ booking.departure_date.strftime('%Y-%m-%d') }}</td>
+            <td class="action-buttons">
+                <a href="{{ url_for('update_booking', flight_number=booking.flight_number, first=booking.first, last=booking.last) }}" 
+                   class="btn-update">
+                   Edit
+                </a>
+                <form method="POST" 
+                      action="{{ url_for('delete_booking', flight_number=booking.flight_number, first=booking.first, last=booking.last) }}" 
+                      style="display: inline;">
+                    <button type="submit" 
+                            class="btn-delete"
+                            onclick="return confirm('Delete this booking?')">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+        position: sticky;
+        top: 0;
+    }
+    .action-buttons {
+        white-space: nowrap;
+    }
+   
+</style>
+{% endblock %}

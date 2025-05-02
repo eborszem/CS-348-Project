@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Airlines</h1>
+
+<h2>Add New Airline</h2>
+<form method="POST">
+    <input type="text" name="code" placeholder="Code (2 letters)" required maxlength="2">
+    <input type="text" name="name" placeholder="Name" required>
+    <button type="submit">Add Airline</button>
+</form>
+
+<h2>Airline List</h2>
+<table>
+    <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Actions</th>
+    </tr>
+    {% for airline in airlines %}
+    <tr>
+        <td>{{ airline.code }}</td>
+        <td>{{ airline.name }}</td>
+        <td class="action-buttons">
+            <a href="{{ url_for('airline_operations', airline_code=airline.code) }}" 
+               class="btn-operations">Manage Operations</a>
+            <a href="{{ url_for('edit_airline', code=airline.code) }}" 
+               class="btn-update">Edit</a>
+            <form method="POST" 
+                  action="{{ url_for('delete_airline', code=airline.code) }}" 
+                  style="display:inline;">
+                <button type="submit" class="btn-delete" 
+                        onclick="return confirm('Delete {{ airline.code }}? This will fail if the airline has existing flights or operations.')">
+                    Delete
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<style>
+    .action-buttons {
+        white-space: nowrap;
+    }
+    .btn-update {
+        color: #0066cc;
+        text-decoration: none;
+        margin-right: 8px;
+    }
+    .btn-delete {
+        color: #cc0000;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Update Booking for {{ first }} {{ last }}</h1>
+<form method="POST">
+    <div>
+        <label>Current Flight: {{ current_flight }}</label>
+    </div>
+    <div>
+        <label for="new_flight_number">New Flight:</label>
+        <select name="new_flight_number" required>
+            {% for flight in flights %}
+            <option value="{{ flight.flight_number }}: {{ flight.origin_code }} → {{ flight.dest_code }} ({{ flight.departure_date.strftime('%a, %b %d, %Y') }})"
+                    {% if flight.flight_number == current_flight %}selected{% endif %}>
+                {{ flight.flight_number }}: {{ flight.origin_code }} → {{ flight.dest_code }} ({{ flight.departure_date.strftime('%a, %b %d, %Y') }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit">Update Booking</button>
+</form>
+{% endblock %}

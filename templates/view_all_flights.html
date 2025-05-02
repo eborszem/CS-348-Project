@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>All Flights</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Flight #</th>
+            <th>Airline</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>Departure Date</th>
+            <th>Passengers</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for flight in flights %}
+        <tr>
+            <td>{{ flight.flight_number }}</td>
+            <td>{{ flight.airline_name }}</td>
+            <td>{{ flight.origin_code }} ({{ flight.origin_name }})</td>
+            <td>{{ flight.dest_code }} ({{ flight.dest_name }})</td>
+            <td>{{ flight.departure_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ flight.passenger_count }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+</style>
+{% endblock %}

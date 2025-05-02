@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Book a Flight</h1>
+
+<form method="POST" id="bookingForm">
+    <div>
+        <label for="airline">Airline:</label>
+        <select name="airline_code" id="airlineSelect" required>
+            <option value="">Select Airline</option>
+            {% for airline in airlines %}
+            <option value="{{ airline.code }}">{{ airline.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="flight_number">Flight:</label>
+        <select name="flight_number" id="flightSelect" required disabled>
+            <option value="">Select Airline First</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="first_name">First Name:</label>
+        <input type="text" name="first_name" required>
+    </div>
+
+    <div>
+        <label for="last_name">Last Name:</label>
+        <input type="text" name="last_name" required>
+    </div>
+
+
+    <button type="submit">Book Flight</button>
+</form>
+
+<script>
+document.getElementById('airlineSelect').addEventListener('change', function() {
+    const airlineCode = this.value;
+    const flightSelect = document.getElementById('flightSelect');
+    
+    if (!airlineCode) {
+        flightSelect.innerHTML = '<option value="">Select Airline First</option>';
+        flightSelect.disabled = true;
+        return;
+    }
+    
+    fetch(`/get_flights/${airlineCode}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(flights => {
+        console.log("Received flights:", flights);  // Debug log
+        const flightSelect = document.getElementById('flightSelect');
+        
+        if (flights.length === 0) {
+            flightSelect.innerHTML = '<option value="">No flights available</option>';
+            console.log("No flights returned from server");  // Debug log
+        } else {
+            flightSelect.innerHTML = flights.map(flight => {
+                // Format the date to remove the time portion
+                const dateOnly = new Date(flight.departure_date).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                return `<option value="${flight.flight_number}">
+                    ${flight.flight_number}: ${flight.origin_code} → ${flight.dest_code} 
+                    (${dateOnly})
+                </option>`;
+            }).join('');
+        }
+        flightSelect.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error fetching flights:', error);
+        const flightSelect = document.getElementById('flightSelect');
+        flightSelect.innerHTML = '<option value="">Error loading flights</option>';
+        flightSelect.disabled = false;
+    });
+});
+</script>
+
+<style>
+    form div {
+        margin-bottom: 15px;
+    }
+    label {
+        display: inline-block;
+        width: 120px;
+    }
+    select, input {
+        padding: 8px;
+        width: 300px;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

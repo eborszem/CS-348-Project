@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Operations for {{ airline_name }} ({{ airline_code }})</h1>
+
+<h2>Current Operations</h2>
+{% if operations %}
+<table>
+    <tr>
+        <th>Airport Code</th>
+        <th>Airport Name</th>
+        <th>Action</th>
+    </tr>
+    {% for op in operations %}
+    <tr>
+        <td>{{ op.code }}</td>
+        <td>{{ op.name }} ({{ op.city }})</td>
+        <td>
+            <form method="POST" action="{{ url_for('delete_operation', airline_code=airline_code, airport_code=op.code) }}" style="display:inline;">
+                <button type="submit" class="btn-danger">Remove</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>This airline currently has no operations.</p>
+{% endif %}
+
+<h2>Available Airports</h2>
+<form method="POST">
+    <div class="airport-grid">
+        {% for airport in airports %}
+        <div class="airport-option">
+            <input type="checkbox" id="airport-{{ airport.code }}" name="airports" value="{{ airport.code }}">
+            <label for="airport-{{ airport.code }}">
+                {{ airport.code }} - {{ airport.name }} ({{ airport.city }})
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn-primary">Add Selected Airports</button>
+</form>
+
+<a href="{{ url_for('airlines') }}" class="back-link">← Back to Airlines</a>
+
+<style>
+    .airport-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .airport-option {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .btn-primary {
+        background-color: #4CAF50;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn-danger {
+        background-color: #f44336;
+        color: white;
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #333;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
