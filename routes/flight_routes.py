@@ -2,12 +2,12 @@ from app import app, mysql, db
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from models import *
 
-
 # CREATE FLIGHT (ORM)
 @app.route('/create_flight', methods=['GET', 'POST'])
 def create_flight():
     if request.method == 'POST':
         # set isolation level - prevent race conditions when creating flights
+        # no 2 flights with the same flight number
         db.session.connection(
             execution_options={'isolation_level': 'REPEATABLE READ'}
         )

@@ -11,6 +11,7 @@ def book_flight():
         last = request.form['last_name']
         
         # isolation level: repeatable read
+        # no overbooking
         db.session.connection(
             execution_options={'isolation_level': 'REPEATABLE READ'}
         )
