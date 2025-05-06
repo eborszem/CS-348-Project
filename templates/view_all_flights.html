@@ -12,6 +12,8 @@
             <th>Destination</th>
             <th>Departure Date</th>
             <th>Passengers</th>
+            <th>Capacity</th>
+            <th>Available Seats</th>
         </tr>
     </thead>
     <tbody>
@@ -23,6 +25,8 @@
             <td>{{ flight.dest_code }} ({{ flight.dest_name }})</td>
             <td>{{ flight.departure_date.strftime('%Y-%m-%d') }}</td>
             <td>{{ flight.passenger_count }}</td>
+            <td>{{ flight.capacity }}</td>
+            <td>{{ flight.available }}</td>
         </tr>
         {% endfor %}
     </tbody>

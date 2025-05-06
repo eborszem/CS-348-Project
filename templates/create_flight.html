@@ -16,7 +16,7 @@
 
     <div>
         <label for="flight_number">Flight Number:</label>
-        <input type="text" name="flight_number" required>
+        <input type="text" name="flight_number" pattern="[0-9]+" required>
     </div>
 
     <div>
@@ -36,6 +36,11 @@
     <div>
         <label for="departure_date">Departure Date:</label>
         <input type="date" name="departure_date" required>
+    </div>
+
+    <div>
+        <label for="capacity">Capacity:</label>
+        <input type="number" name="capacity" min="5" value="100" required>
     </div>
 
     <button type="submit">Create Flight</button>
@@ -84,6 +89,12 @@ document.getElementById('flightForm').addEventListener('submit', function(e) {
     if (origin === destination) {
         e.preventDefault();
         alert('Origin and destination must be different!');
+    }
+
+    const capacity = document.querySelector('input[name="capacity"]');
+    if (capacity && capacity.value < 5) {
+        e.preventDefault();
+        alert('Capacity must be at least 5!');
     }
 });
 </script>

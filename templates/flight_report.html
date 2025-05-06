@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Flight Report</h2>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Filter Flights</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{{ url_for('flight_report') }}">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="airline">Airline</label>
+                            <select class="form-control" id="airline" name="airline">
+                                <option value="">All Airlines</option>
+                                {% for airline in airlines %}
+                                <option value="{{ airline.code }}" {% if filters.airline == airline.code %}selected{% endif %}>
+                                    {{ airline.name }} ({{ airline.code }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="origin">Origin Airport</label>
+                            <select class="form-control" id="origin" name="origin">
+                                <option value="">All Origins</option>
+                                {% for airport in airports %}
+                                <option value="{{ airport.code }}" {% if filters.origin == airport.code %}selected{% endif %}>
+                                    {{ airport.city }} ({{ airport.code }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="destination">Destination Airport</label>
+                            <select class="form-control" id="destination" name="destination">
+                                <option value="">All Destinations</option>
+                                {% for airport in airports %}
+                                <option value="{{ airport.code }}" {% if filters.destination == airport.code %}selected{% endif %}>
+                                    {{ airport.city }} ({{ airport.code }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="start_date">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" 
+                                   value="{{ filters.start_date }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="end_date">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" 
+                                   value="{{ filters.end_date }}">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Apply Filters</button>
+                <a href="{{ url_for('flight_report') }}" class="btn btn-secondary mt-3">Reset</a>
+            </form>
+        </div>
+    </div>
+
+    {% if stats %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Flight Statistics</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h6>Total Flights</h6>
+                        <h3>{{ stats.total_flights }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h6>Avg Passengers</h6>
+                        <h3>{{ "%.2f"|format(stats.avg_passengers or 0) }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h6>Earliest Date</h6>
+                        <h3>{{ stats.earliest_date or 'N/A' }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h6>Latest Date</h6>
+                        <h3>{{ stats.latest_date or 'N/A' }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Flight Details</h5>
+        </div>
+        <div class="card-body">
+            {% if flights %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Flight Number</th>
+                            <th>Airline</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Departure Date</th>
+                            <th>Passengers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for flight in flights %}
+                        <tr>
+                            <td>{{ flight.Flight.flight_number }}</td>
+                            <td>{{ flight.airline_name }} ({{ flight.Flight.airline_code }})</td>
+                            <td>{{ flight.origin_name }} ({{ flight.Flight.origin }})</td>
+                            <td>{{ flight.dest_name }} ({{ flight.Flight.destination }})</td>
+                            <td>{{ flight.Flight.departure_date }}</td>
+                            <td>{{ flight.passenger_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No flights found matching your criteria.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

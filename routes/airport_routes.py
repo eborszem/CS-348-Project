@@ -69,4 +69,3 @@ def delete_airport(code):
         db.session.rollback()
         flash(f'Error deleting airport: {str(e)}', 'danger')
     return redirect(url_for('airports'))
-

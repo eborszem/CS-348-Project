@@ -158,3 +158,113 @@ def delete_airline(code):
     finally:
         cur.close()
     return redirect(url_for('airlines'))
+
+# FLIGHT REPORT INTERFACE
+@app.route('/flight_report', methods=['GET', 'POST'])
+def flight_report():
+    airline_code = request.args.get('airline', '')
+    origin_code = request.args.get('origin', '')
+    dest_code = request.args.get('destination', '')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    
+    # ORM
+    Airport_origin = db.aliased(Airport)
+    Airport_dest = db.aliased(Airport)
+    
+    query = db.session.query(
+        Flight,
+        Airline.name.label('airline_name'),
+        Airport_origin.name.label('origin_name'),
+        Airport_dest.name.label('dest_name'),
+        db.func.count(Passenger.flight_number).label('passenger_count')
+    ).join(
+        Airline, Flight.airline_code == Airline.code
+    ).join(
+        Airport_origin, Flight.origin == Airport_origin.code
+    ).join(
+        Airport_dest, Flight.destination == Airport_dest.code
+    ).outerjoin(
+        Passenger, Flight.flight_number == Passenger.flight_number
+    ).group_by(
+        Flight.flight_number,
+        Airline.name,
+        Airport_origin.name,
+        Airport_dest.name
+    )
+    
+    if airline_code:
+        query = query.filter(Flight.airline_code == airline_code)
+    if origin_code:
+        query = query.filter(Flight.origin == origin_code)
+    if dest_code:
+        query = query.filter(Flight.destination == dest_code)
+    if start_date:
+        query = query.filter(Flight.departure_date >= start_date)
+    if end_date:
+        query = query.filter(Flight.departure_date <= end_date)
+    
+    flights = query.all()
+    
+    stats = {}
+    cur = mysql.connection.cursor()
+    
+    base_sql = """
+        SELECT 
+            COUNT(*) as total_flights,
+            AVG(passenger_count) as avg_passengers,
+            MIN(departure_date) as earliest_date,
+            MAX(departure_date) as latest_date
+        FROM (
+            SELECT 
+                f.flight_number,
+                COUNT(p.flight_number) as passenger_count,
+                f.departure_date
+            FROM flights f
+            LEFT JOIN passengers p ON f.flight_number = p.flight_number
+            WHERE 1=1
+    """
+    
+    params = []
+    conditions = []
+    
+    if airline_code:
+        conditions.append("f.airline_code = %s")
+        params.append(airline_code)
+    if origin_code:
+        conditions.append("f.origin = %s")
+        params.append(origin_code)
+    if dest_code:
+        conditions.append("f.destination = %s")
+        params.append(dest_code)
+    if start_date:
+        conditions.append("f.departure_date >= %s")
+        params.append(start_date)
+    if end_date:
+        conditions.append("f.departure_date <= %s")
+        params.append(end_date)
+    
+    sql = base_sql
+    if conditions:
+        sql += " AND " + " AND ".join(conditions)
+    sql += " GROUP BY f.flight_number ) as flight_stats"
+    
+    cur.execute(sql, params)
+    stats = cur.fetchone()
+    cur.close()
+    
+    airlines = Airline.query.order_by(Airline.name).all()
+    airports = Airport.query.order_by(Airport.code).all()
+    
+    return render_template('flight_report.html',
+                         flights=flights,
+                         stats=stats,
+                         airlines=airlines,
+                         airports=airports,
+                         filters={
+                             'airline': airline_code,
+                             'origin': origin_code,
+                             'destination': dest_code,
+                             'start_date': start_date,
+                             'end_date': end_date
+                         })

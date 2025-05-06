@@ -2,7 +2,7 @@ from app import app, mysql, db
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from models import *
 
-# BOOK FLIGHT (ORM)
+# BOOK FLIGHT (ORM) 
 @app.route('/book_flight', methods=['GET', 'POST'])
 def book_flight():
     if request.method == 'POST':
@@ -10,12 +10,29 @@ def book_flight():
         first = request.form['first_name']
         last = request.form['last_name']
         
+        # isolation level: repeatable read
+        db.session.connection(
+            execution_options={'isolation_level': 'REPEATABLE READ'}
+        )
+        
         try:
-            flight = Flight.query.get(flight_number)
+            # get flight capacity
+            flight = Flight.query.with_for_update().get(flight_number)  # row lock
+            
             if not flight:
                 flash('Flight not found!', 'danger')
                 return redirect(url_for('book_flight'))
             
+            # is flight full
+            current_passengers = Passenger.query.filter_by(
+                flight_number=flight_number
+            ).count()
+            
+            if current_passengers >= flight.capacity:
+                flash('Flight is fully booked!', 'danger')
+                return redirect(url_for('book_flight'))
+            
+            # create booking
             passenger = Passenger(
                 first=first,
                 last=last,
@@ -27,32 +44,33 @@ def book_flight():
         except Exception as e:
             db.session.rollback()
             flash(f'Error creating booking: {str(e)}', 'danger')
+        finally:
+            db.session.close()
+        
         return redirect(url_for('book_flight'))
     
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT code, name FROM airlines ORDER BY name")
-    airlines = cur.fetchall()
-    cur.close()
+    # GET request handling
+    airlines = Airline.query.order_by(Airline.name).all()
     return render_template('book_flight.html', airlines=airlines)
 
-# BOOK A FLIGHT LIST
-@app.route('/get_flights/<airline_code>')
-def get_flights(airline_code):
-    cur = mysql.connection.cursor()
-    cur.execute("""
-        SELECT f.flight_number, 
-               a1.code as origin_code, a1.name as origin_name,
-               a2.code as dest_code, a2.name as dest_name,
-               f.departure_date
-        FROM flights f
-        JOIN airports a1 ON f.origin = a1.code
-        JOIN airports a2 ON f.destination = a2.code
-        WHERE f.airline_code = %s
-        ORDER BY f.departure_date
-    """, (airline_code,))
-    flights = cur.fetchall()
-    cur.close()
-    return jsonify(flights)
+# # BOOK A FLIGHT LIST
+# @app.route('/get_flights/<airline_code>')
+# def get_flights(airline_code):
+#     cur = mysql.connection.cursor()
+#     cur.execute("""
+#         SELECT f.flight_number, 
+#                a1.code as origin_code, a1.name as origin_name,
+#                a2.code as dest_code, a2.name as dest_name,
+#                f.departure_date
+#         FROM flights f
+#         JOIN airports a1 ON f.origin = a1.code
+#         JOIN airports a2 ON f.destination = a2.code
+#         WHERE f.airline_code = %s
+#         ORDER BY f.departure_date
+#     """, (airline_code,))
+#     flights = cur.fetchall()
+#     cur.close()
+#     return jsonify(flights)
 
 # VIEW ALL BOOKINGS
 @app.route('/view_flights')
